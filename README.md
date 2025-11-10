@@ -8,11 +8,11 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 A laptop-friendly, **zero-cost** data engineering project:
-- **Ingest (real-time)**: pull live arrivals from the **TfL Unified API**
-- **Store**: write **Parquet** to a local data lake folder
-- **Transform**: model with **dbt + DuckDB** (staging → marts)
-- **Validate**: **Great Expectations** checks
-- **Observe**: **OpenLineage + Marquez** for data lineage
+- **Ingest (real-time)**: Retrieve live arrival information from the **TfL Unified API**.
+- **Action**: Save the data as **Parquet** format in a specified local data lake folder.
+- **Transformation**: Use the **dbt + DuckDB** model to move data from staging to marts.
+- **Validation**: **Great Expectations** compliance checks.
+- **Observation**: **OpenLineage and Marquez** are used for tracking data lineage.
 
 ---
 
