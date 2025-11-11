@@ -65,17 +65,19 @@ tfl-realtime-lakehouse/
   └─ LICENSE
 
 
-# Airflow (On Linux, this setting is configured automatically; refer to the steps for more details).
+- Airflow (On Linux, this setting is configured automatically; refer to the steps for more details).
 AIRFLOW_UID=
 
-# TfL credentials (optional, but recommended)
+- TfL credentials (optional, but recommended).
+  
 TFL_APP_ID=
 TFL_APP_KEY=
 
-# Please provide one or more StopPoint IDs (NaPTAN IDs), separated by commas.
-# Tip: Access the TfL Swagger UI under StopPoint or use the hints on the Tech Forum to find IDs, then test the endpoint /StopPoint/{id}/Arrivals.
+- Please provide one or more StopPoint IDs (NaPTAN IDs), separated by commas. Tip: Use the TfL Swagger UI under StopPoint or the Tech Forum for ID hints, then test /StopPoint/{id}/Arrivals.
+  
 TFL_STOPPOINT_IDS=490008660N,490009133G
 
-# OpenLineage (Marquez backend)
+- OpenLineage with a Marquez backend..
+
 OPENLINEAGE_NAMESPACE=tfl-realtime
 OPENLINEAGE_URL=http://marquez:5000
