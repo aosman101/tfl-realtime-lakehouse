@@ -1,0 +1,45 @@
+version: "3.8"
+services:
+  # mount code & enable OpenLineage on all Airflow services that run tasks
+  airflow-webserver:
+    environment:
+      AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+      AIRFLOW__OPENLINEAGE__TRANSPORT: '{"type":"http","url":"http://marquez:5000","endpoint":"api/v1/lineage"}'
+      AIRFLOW__OPENLINEAGE__NAMESPACE: "tfl-realtime"
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/requirements.txt:/opt/airflow/requirements.txt
+      - ./dbt_project:/opt/airflow/dbt
+      - ./data:/opt/airflow/data
+    env_file: [.env]
+
+  airflow-scheduler:
+    environment:
+      AIRFLOW__OPENLINEAGE__TRANSPORT: '{"type":"http","url":"http://marquez:5000","endpoint":"api/v1/lineage"}'
+      AIRFLOW__OPENLINEAGE__NAMESPACE: "tfl-realtime"
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/requirements.txt:/opt/airflow/requirements.txt
+      - ./dbt_project:/opt/airflow/dbt
+      - ./data:/opt/airflow/data
+    env_file: [.env]
+
+  airflow-worker:
+    environment:
+      AIRFLOW__OPENLINEAGE__TRANSPORT: '{"type":"http","url":"http://marquez:5000","endpoint":"api/v1/lineage"}'
+      AIRFLOW__OPENLINEAGE__NAMESPACE: "tfl-realtime"
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/requirements.txt:/opt/airflow/requirements.txt
+      - ./dbt_project:/opt/airflow/dbt
+      - ./data:/opt/airflow/data
+    env_file: [.env]
+
+  # Lineage backend + UI
+  marquez:
+    image: marquezproject/marquez:latest
+    ports: ["5000:5000","5001:5001"]
+  marquez-web:
+    image: marquezproject/marquez-web:latest
+    environment: { MARQUEZ_HOST: marquez, MARQUEZ_PORT: "5000" }
+    ports: ["3000:3000"]
