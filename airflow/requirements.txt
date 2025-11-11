@@ -1,0 +1,9 @@
+requests
+pyarrow>=13
+duckdb>=1.0
+pandas
+great-expectations>=1.9
+apache-airflow-providers-openlineage
+dbt-core>=1.7
+dbt-duckdb>=1.7
+openlineage-dbt
