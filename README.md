@@ -18,7 +18,7 @@ Here's an overview of the high-level workflow:
 
 ---
 
-## Interactive Walkthrough (what you'll do)
+# Interactive Walkthrough (what you'll do)
 This README is written as a guided, interactive walkthrough, allowing you to follow along and run the project step-by-step.
 
 1. Start the platform services (Airflow, Marquez, any services in Docker Compose).
@@ -30,7 +30,7 @@ This README is written as a guided, interactive walkthrough, allowing you to fol
 
 ---
 
-## Quick Start
+# Quick Start
 
 Prerequisites
 - Docker & Docker Compose (or Docker Desktop)
@@ -137,7 +137,7 @@ Great Expectations will validate data in staging/marts and can build data-docs f
 
 ---
 
-## Project Structure (expanded)
+# Project Structure (expanded)
 tfl-realtime-lakehouse/
 
   ├─ airflow/
@@ -162,7 +162,7 @@ tfl-realtime-lakehouse/
 
 ---
 
-## DAGs (what they do)
+# DAGs (what they do)
 
 - tfl_ingest_dag
   - Purpose: Periodically call the TfL Unified API for the configured StopPoint IDs, capture arrival snapshots, and persist them as partitioned Parquet files in data/raw/.
@@ -178,7 +178,7 @@ If you want to examine the code for each DAG, open:
 
 ---
 
-## Data quality & Observability
+# Data quality & Observability
 
 - Great Expectations (GX)
   - Expectations live under great_expectations/ and include checks for schema, nullability, and business rules (e.g., arrival time within expected horizon).
@@ -193,7 +193,7 @@ If you want to examine the code for each DAG, open:
 
 ---
 
-## Example: Add a new StopPoint to monitor
+# Example: Add a new Stop Point to monitor.
 
 1. Edit .env and append the NaPTAN ID to TFL_STOPPOINT_IDS:
 "`env
@@ -205,7 +205,7 @@ TFL_STOPPOINT_IDS=490008660N,490009133G,490012345A
 
 ---
 
-## Development: add a new dbt model
+# Development: add a new dbt model
 
 1. Create SQL model under dbt_project/models/marts/new_model.sql.
 2. Add tests in dbt (schema.yml) or Great Expectations suites for the new model.
@@ -221,7 +221,7 @@ dbt test --models marts.new_model
 
 ---
 
-## Useful commands cheat sheet
+# Important Commands
 
 - Start everything
   docker compose up --build
@@ -245,7 +245,7 @@ dbt test --models marts.new_model
 
 ---
 
-## Troubleshooting
+# Troubleshooting
 
 - Airflow web UI not accessible:
   - Confirm container started: docker compose ps.
@@ -262,7 +262,7 @@ dbt test --models marts.new_model
 
 ---
 
-## Roadmap (ideas)
+# Roadmap (ideas)
 
 - Implement Continuous Integration (CI) to run dbt tests on pull requests (PRs) using GitHub Actions.
 - Add unit tests for the tasks in the Directed Acyclic Graph (DAG) using pytest and Airflow testing helpers.
@@ -272,7 +272,7 @@ dbt test --models marts.new_model
 
 ---
 
-## Attribution & Credits
+# Attribution & Credits
 
 - TfL Unified API — data source for realtime transport information.
 - Great Expectations — data testing and documentation.
@@ -281,7 +281,7 @@ dbt test --models marts.new_model
 
 ---
 
-## Contributing
+# Contributing
 
 Contributions are welcome! Feel free to:
 - Open issues for bugs, enhancements, or feature requests.
