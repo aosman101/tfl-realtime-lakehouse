@@ -54,17 +54,21 @@ cp .env.example .env
 
 Required environment variables (.env)
 "`env
-# Airflow runtime (set by docker-compose during runtime)
-AIRFLOW_UID=
+# Airflow runtime (set by docker-compose during runtime).
 
-# TfL credentials (optional - reduces throttling)
-TFL_APP_ID=
-TFL_APP_KEY=
+AIRFLOW_UID =
 
-# Comma-separated StopPoint IDs to fetch arrival data for
+# TfL credentials (optional - reduces throttling).
+
+TFL_APP_ID =
+TFL_APP_KEY =
+
+# Comma-separated IDs of StopPoints for which to retrieve arrival data.
+
 TFL_STOPPOINT_IDS=490008660N,490009133G
 
-# OpenLineage / Marquez
+# OpenLineage / Marquez.
+
 OPENLINEAGE_NAMESPACE=tfl-realtime
 OPENLINEAGE_URL=http://marquez:5000
 ```
@@ -81,12 +85,12 @@ This will bring up the Airflow webserver/scheduler (and any other services defin
 4. Open Airflow UI
 - Default: http://localhost:8080
 - Look for DAGs:
-  - tfl_ingest_dag
-  - tfl_transform_dag
+  - tfl_ingest_dag.
+  - tfl_transform_dag.
 
 5. Trigger the ingest DAG manually (or wait for its schedule)
-- From the UI, click "tfl_ingest_dag" -> Trigger DAG
-- After a successful run, check the data folder
+- From the UI, click "tfl_ingest_dag" -> Trigger DAG.
+- After a successful run, check the data folder.
 
 6. Inspect the generated data
 - Raw/landing parquet files are written under:
@@ -125,7 +129,7 @@ From the project root:
 great_expectations --v3-api checkpoint run <checkpoint-name>
 # Or:
 great_expectations --v3-api suite run <suite-name>
-```
+
 Great Expectations will validate data in staging/marts and can build data-docs for review.
 
 9. Inspect lineage
@@ -194,7 +198,6 @@ If you want to examine the code for each DAG, open:
 1. Edit .env and append the NaPTAN ID to TFL_STOPPOINT_IDS:
 "`env
 TFL_STOPPOINT_IDS=490008660N,490009133G,490012345A
-```
 
 2. Trigger the ingest DAG from Airflow UI or run the specific ingestion task for a single StopPoint (if implemented).
 
@@ -204,14 +207,16 @@ TFL_STOPPOINT_IDS=490008660N,490009133G,490012345A
 
 ## Development: add a new dbt model
 
-1. Create SQL model under dbt_project/models/marts/new_model.sql
+1. Create SQL model under dbt_project/models/marts/new_model.sql.
 2. Add tests in dbt (schema.yml) or Great Expectations suites for the new model.
 3. Run dbt locally:
+
 ```bash
 cd dbt_project
 dbt run --models marts.new_model
 dbt test --models marts.new_model
 ```
+
 4. Update tfl_transform_dag if you need the DAG to run additional tasks for the model (e.g., additional validations or lineage metadata).
 
 ---
@@ -243,13 +248,13 @@ dbt test --models marts.new_model
 ## Troubleshooting
 
 - Airflow web UI not accessible:
-  - Confirm container started: docker compose ps
-  - Check container logs: docker compose logs airflow-webserver
+  - Confirm container started: docker compose ps.
+  - Check container logs: docker compose logs airflow-webserver.
 
 - No data written after ingest:
-  - Verify .env has valid TFL_STOPPOINT_IDS
-  - Check network access (some environments block external calls)
-  - Review ingest task logs for HTTP errors (rate-limiting or 401/403 if TFL keys are invalid)
+  - Verify .env has valid TFL_STOPPOINT_IDS.
+  - Check network access (some environments block external calls).
+  - Review ingest task logs for HTTP errors (rate-limiting or 401/403 if TFL keys are invalid).
 
 - dbt failing:
   - Run dbt debug to ensure profiles.yml is correctly configured for DuckDB.
@@ -258,15 +263,17 @@ dbt test --models marts.new_model
 ---
 
 ## Roadmap (ideas)
-- Add CI to run dbt tests on PRs (GitHub Actions)
-- Add unit tests for DAG tasks (pytest + Airflow testing helpers)
-- Add incremental dbt models for more efficient transforms
-- Add a small frontend or dashboard showing the latest arrivals and historical trends
-- Add more robust lineage by instrumenting ingestion code with the OpenLineage client
+
+- Implement Continuous Integration (CI) to run dbt tests on pull requests (PRs) using GitHub Actions.
+- Add unit tests for the tasks in the Directed Acyclic Graph (DAG) using pytest and Airflow testing helpers.
+- Incorporate incremental dbt models to enable more efficient data transformations.
+- Include a small front-end dashboard to display the latest arrivals and historical trends.
+- Enhance the lineage tracking by incorporating the OpenLineage client into the ingestion code.
 
 ---
 
 ## Attribution & Credits
+
 - TfL Unified API — data source for realtime transport information.
 - Great Expectations — data testing and documentation.
 - dbt, DuckDB — transformation & analytical engine.
@@ -275,11 +282,13 @@ dbt test --models marts.new_model
 ---
 
 ## Contributing
+
 Contributions are welcome! Feel free to:
 - Open issues for bugs, enhancements, or feature requests.
 - Open PRs with changes to DAGs, dbt models, or docs.
 - Add more StopPoint examples and sample data for reproducible demos.
 
 When opening a PR:
+
 - Add a clear description of the change and why it helps.
 - If you add models, include tests (dbt or GX) and sample outputs.
