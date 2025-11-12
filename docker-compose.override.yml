@@ -1,7 +1,6 @@
-version: "3.8"
 services:
   # mount code & enable OpenLineage on all Airflow services that run tasks
-  airflow-webserver:
+  airflow-apiserver:
     environment:
       AIRFLOW__CORE__LOAD_EXAMPLES: "False"
       AIRFLOW__OPENLINEAGE__TRANSPORT: '{"type":"http","url":"http://marquez:5000","endpoint":"api/v1/lineage"}'
