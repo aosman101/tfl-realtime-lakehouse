@@ -1,0 +1,8 @@
+tfl_realtime:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: /opt/airflow/data/silver/tfl.duckdb
+      threads: 4
+      extensions: [httpfs, parquet]

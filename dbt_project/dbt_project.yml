@@ -1,0 +1,12 @@
+name: tfl_realtime
+version: "1.0.0"
+profile: tfl_realtime
+config-version: 2
+
+models:
+  tfl_realtime:
+    +materialized: table
+    staging:
+      +schema: staging
+    marts:
+      +schema: marts
