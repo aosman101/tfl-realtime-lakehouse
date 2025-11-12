@@ -38,14 +38,14 @@ def fetch_and_write(**ctx):
     ])
     pq.write_table(table, out_dir / f"arrivals_{ts}.parquet")
 
-default_args = {"retries": 2, "retry_delay": timedelta(minutes=2)}
+default_args = {"retries": 2, "retry_delay": timedelta(minutes = 2)}
 with DAG(
     dag_id="tfl_ingest",
     start_date=datetime(2025,1,1),
     schedule="*/2 * * * *",  # be polite; predictions refresh ~30s
     catchup=False,
-    max_active_runs=1,
-    default_args=default_args,
+    max_active_runs = 1,
+    default_args = default_args,
     tags=["tfl","ingest"],
 ) as dag:
-    PythonOperator(task_id="fetch_and_write", python_callable=fetch_and_write)
+    PythonOperator(task_id = "fetch_and_write", python_callable = fetch_and_write)
