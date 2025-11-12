@@ -30,7 +30,7 @@ This README is written as a guided, interactive walkthrough, allowing you to fol
 
 ---
 
-# Quick Start
+## Quick Start
 
 Prerequisites
 - Docker & Docker Compose (or Docker Desktop)
@@ -58,16 +58,16 @@ Required environment variables (.env)
 
 AIRFLOW_UID =
 
-# TfL credentials (optional - reduces throttling).
+## TfL credentials (optional - reduces throttling).
 
 TFL_APP_ID =
 TFL_APP_KEY =
 
-# Comma-separated IDs of StopPoints for which to retrieve arrival data.
+## Comma-separated IDs of StopPoints for which to retrieve arrival data.
 
 TFL_STOPPOINT_IDS=490008660N,490009133G
 
-# OpenLineage / Marquez.
+## OpenLineage / Marquez.
 
 OPENLINEAGE_NAMESPACE=tfl-realtime
 OPENLINEAGE_URL=http://marquez:5000
@@ -80,7 +80,8 @@ docker compose up --build
 # or for older Docker Compose:
 Docker-compose up --build
 ```
-This will bring up the Airflow webserver/scheduler (and any other services defined, like Marquez). If you prefer to run only Airflow locally without containers, you can follow the Airflow docs and point Airflow to use the local directories in this repo.
+
+This will bring up the Airflow web server/scheduler (and any other services defined, such as Marquez). If you prefer to run only Airflow locally without containers, you can follow the Airflow docs and point Airflow to use the local directories in this repo.
 
 4. Open Airflow UI
 - Default: http://localhost:8080
@@ -125,9 +126,12 @@ This will kick off your DBT models (staging -> marts) that materialise into Duck
 8. Run Great Expectations validations
 From the project root:
 "`bash
-# Example pattern: run expectation suite or checkpoint
+## Example pattern: run expectation suite or checkpoint
+
 great_expectations --v3-api checkpoint run <checkpoint-name>
-# Or:
+
+## Or:
+
 great_expectations --v3-api suite run <suite-name>
 
 Great Expectations will validate data in staging/marts and can build data-docs for review.
@@ -137,24 +141,24 @@ Great Expectations will validate data in staging/marts and can build data-docs f
 
 ---
 
-# Project Structure (expanded)
+## Project Structure (expanded)
 tfl-realtime-lakehouse/
 
   ├─ airflow/
   │   ├─ dags/
-  │   │   ├─ tfl_ingest_dag.py        # Ingest snapshots from TfL and persist as Parquet
-  │   │   └─ tfl_transform_dag.py     # Orchestrates dbt transforms + validations
+  │   │   ├─ tfl_ingest_dag.py        # Ingest snapshots from TfL and persist as Parquet.
+  │   │   └─ tfl_transform_dag.py     # Orchestrates dbt transforms + validations.
   │   └─ requirements.txt
   ├─ dbt_project/
   │   ├─ dbt_project.yml
   │   ├─ models/
   │   │   ├─ staging/
   │   │   └─ marts/
-  │   └─ profiles.yml                 # Local DuckDB profile
-  ├─ great_expectations/              # GX configuration, expectations, and data-docs
+  │   └─ profiles.yml                 # Local DuckDB profile.
+  ├─ great_expectations/              # GX configuration, expectations, and documentation.
   ├─ data/
-  │   ├─ raw/                         # Parquet snapshots (landing)
-  │   └─ silver/                      # Transformed marts / DuckDB outputs
+  │   ├─ raw/                         # Parquet snapshots (landing stage).
+  │   └─ silver/                      # Transformed markets / DuckDB outputs.
   ├─ docker-compose.yml
   ├─ .env.example
   ├─ README.md
@@ -162,7 +166,7 @@ tfl-realtime-lakehouse/
 
 ---
 
-# DAGs (what they do)
+## DAGs (what they do)
 
 - tfl_ingest_dag
   - Purpose: Periodically call the TfL Unified API for the configured StopPoint IDs, capture arrival snapshots, and persist them as partitioned Parquet files in data/raw/.
@@ -178,7 +182,7 @@ If you want to examine the code for each DAG, open:
 
 ---
 
-# Data quality & Observability
+## Data quality & Observability
 
 - Great Expectations (GX)
   - Expectations live under great_expectations/ and include checks for schema, nullability, and business rules (e.g., arrival time within expected horizon).
@@ -193,7 +197,7 @@ If you want to examine the code for each DAG, open:
 
 ---
 
-# Example: Add a new Stop Point to monitor.
+## Example: Add a new Stop Point to monitor.
 
 1. Edit .env and append the NaPTAN ID to TFL_STOPPOINT_IDS:
 "`env
@@ -205,7 +209,7 @@ TFL_STOPPOINT_IDS=490008660N,490009133G,490012345A
 
 ---
 
-# Development: add a new dbt model
+## Development: add a new dbt model
 
 1. Create SQL model under dbt_project/models/marts/new_model.sql.
 2. Add tests in dbt (schema.yml) or Great Expectations suites for the new model.
@@ -221,7 +225,7 @@ dbt test --models marts.new_model
 
 ---
 
-# Important Commands
+## Important Commands
 
 - Start everything
   docker compose up --build
@@ -245,7 +249,7 @@ dbt test --models marts.new_model
 
 ---
 
-# Troubleshooting
+## Troubleshooting
 
 - Airflow web UI not accessible:
   - Confirm container started: docker compose ps.
@@ -262,7 +266,7 @@ dbt test --models marts.new_model
 
 ---
 
-# Roadmap (ideas)
+## Roadmap (ideas)
 
 - Implement Continuous Integration (CI) to run dbt tests on pull requests (PRs) using GitHub Actions.
 - Add unit tests for the tasks in the Directed Acyclic Graph (DAG) using pytest and Airflow testing helpers.
@@ -272,7 +276,7 @@ dbt test --models marts.new_model
 
 ---
 
-# Attribution & Credits
+## Attribution & Credits
 
 - TfL Unified API — data source for realtime transport information.
 - Great Expectations — data testing and documentation.
@@ -281,7 +285,7 @@ dbt test --models marts.new_model
 
 ---
 
-# Contributing
+## Contributing
 
 Contributions are welcome! Feel free to:
 - Open issues for bugs, enhancements, or feature requests.
