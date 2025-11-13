@@ -37,8 +37,28 @@ services:
   # Lineage backend + UI
   marquez:
     image: marquezproject/marquez:latest
-    ports: ["5000:5000","5001:5001"]
+    # Port 5000 on the host conflicts with macOS ControlCenter which listens on 5000.
+    # Use a different host port to avoid bind errors (host:container).
+    ports: ["5002:5000","5001:5001"]
   marquez-web:
     image: marquezproject/marquez-web:latest
     environment: { MARQUEZ_HOST: marquez, MARQUEZ_PORT: "5000" }
     ports: ["3000:3000"]
+
+  # Override healthchecks for some Airflow services to allow more time
+  # (the default healthcheck timeout is 10s and can cause transient failures on slower machines)
+  airflow-dag-processor:
+    healthcheck:
+      test: ["CMD-SHELL", 'airflow jobs check --job-type DagProcessorJob --hostname "$${HOSTNAME}"']
+      interval: 30s
+      timeout: 60s
+      retries: 5
+      start_period: 120s
+
+  airflow-triggerer:
+    healthcheck:
+      test: ["CMD-SHELL", 'airflow jobs check --job-type TriggererJob --hostname "$${HOSTNAME}"']
+      interval: 30s
+      timeout: 60s
+      retries: 5
+      start_period: 120s
