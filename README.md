@@ -7,7 +7,7 @@
 [![OpenLineage+Marquez](https://img.shields.io/badge/lineage-OpenLineage%20%2B%20Marquez-blue)](#)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-This project offers a laptop-friendly, cost-free opportunity to learn data engineering by showcasing a complete, small-scale, realtime "lakehouse" pipeline that utilises live arrival data from Transport for London (TfL) as its source. It is designed to be interactive, allowing you to explore each layer, iterate rapidly, and understand the integration points involving data ingestion, storage, transformation, quality assurance, and lineage tracking.
+This project offers a laptop-friendly, cost-free opportunity to learn data engineering by featuring a comprehensive, small-scale, and real-time "lakehouse" pipeline that utilises live arrival data from Transport for London (TfL) as its primary source. It is designed to be interactive, enabling you to explore each layer, iterate quickly, and gain a deeper understanding of the integration points related to data ingestion, storage, transformation, quality assurance, and lineage tracking.
 
 Here's an overview of the high-level workflow:
 - **Ingest (Realtime):** Retrieve live arrival information by calling the TfL Unified API.
@@ -18,7 +18,8 @@ Here's an overview of the high-level workflow:
 
 ---
 
-# Interactive Walkthrough (what you'll do)
+## **Interactive Walkthrough: What You Will Do**
+
 This README is written as a guided, interactive walkthrough, allowing you to follow along and run the project step-by-step.
 
 1. Start the platform services (Airflow, Marquez, any services in Docker Compose).
@@ -54,20 +55,20 @@ cp .env.example .env
 
 Required environment variables (.env)
 "`env
-# Airflow runtime (set by docker-compose during runtime).
+## Airflow runtime (set by docker-compose during runtime)
 
 AIRFLOW_UID =
 
-## TfL credentials (optional - reduces throttling).
+## TfL credentials (optional - reduces throttling)
 
 TFL_APP_ID =
 TFL_APP_KEY =
 
-## Comma-separated IDs of StopPoints for which to retrieve arrival data.
+## Comma-separated IDs of StopPoints for which to retrieve arrival data
 
 TFL_STOPPOINT_IDS=490008660N,490009133G
 
-## OpenLineage / Marquez.
+## OpenLineage / Marquez
 
 OPENLINEAGE_NAMESPACE=tfl-realtime
 OPENLINEAGE_URL=http://marquez:5000
@@ -100,8 +101,9 @@ This will bring up the Airflow web server/scheduler (and any other services defi
   - data/silver/
 
 Example quick check using DuckDB (locally)
+
 "`bash
-# open a DuckDB shell against the folder
+## Launch a DuckDB shell in the specified folder.
 duckdb
 -- inside duckdb shell:
 .read data/duckdb_init.sql  -- if provided, or use:
@@ -121,7 +123,8 @@ dbt deps
 dbt run
 dbt test
 ```
-This will kick off your DBT models (staging -> marts) that materialise into DuckDB tables or parquet outputs, depending on your profile.
+
+This will initiate your DBT models (staging -> marts) that materialise into DuckDB tables or Parquet outputs, depending on your profile.
 
 8. Run Great Expectations validations
 From the project root:
@@ -141,7 +144,8 @@ Great Expectations will validate data in staging/marts and can build data-docs f
 
 ---
 
-## Project Structure (expanded)
+## Project Structure
+
 tfl-realtime-lakehouse/
 
   ├─ airflow/
@@ -197,7 +201,7 @@ If you want to examine the code for each DAG, open:
 
 ---
 
-## Example: Add a new Stop Point to monitor.
+## Please add a new Stop Point for monitoring
 
 1. Edit .env and append the NaPTAN ID to TFL_STOPPOINT_IDS:
 "`env
@@ -225,7 +229,7 @@ dbt test --models marts.new_model
 
 ---
 
-## Important Commands
+## Important commands
 
 - Start everything
   docker compose up --build
@@ -266,7 +270,7 @@ dbt test --models marts.new_model
 
 ---
 
-## Roadmap (ideas)
+## Roadmap
 
 - Implement Continuous Integration (CI) to run dbt tests on pull requests (PRs) using GitHub Actions.
 - Add unit tests for the tasks in the Directed Acyclic Graph (DAG) using pytest and Airflow testing helpers.
