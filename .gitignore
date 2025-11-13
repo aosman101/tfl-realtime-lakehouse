@@ -1,0 +1,12 @@
+# Local environment variables
+.env
+
+# macOS
+.DS_Store
+
+# Python caches
+__pycache__/
+*.py[cod]
+
+# Node
+node_modules/
