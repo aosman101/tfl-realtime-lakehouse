@@ -1,0 +1,21 @@
+# Virtual environments
+.venv/
+venv/
+# Env files
+.env
+.env.*
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+# Jupyter
+.ipynb_checkpoints/
+# OS
+.DS_Store
+# Data
+data/
+# Byte-compiled / distribution
+*.egg-info/
+dist/
+build/
