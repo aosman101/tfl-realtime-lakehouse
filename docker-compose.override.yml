@@ -37,8 +37,10 @@ services:
   # Lineage backend + UI
   marquez:
     image: marquezproject/marquez:latest
-    ports: ["5000:5000","5001:5001"]
+    pull_policy: never
+    ports: ["5050:5000","5051:5001"]
   marquez-web:
     image: marquezproject/marquez-web:latest
     environment: { MARQUEZ_HOST: marquez, MARQUEZ_PORT: "5000" }
+    pull_policy: never
     ports: ["3000:3000"]
