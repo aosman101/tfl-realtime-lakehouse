@@ -2,7 +2,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 import os, pathlib, requests, pyarrow as pa, pyarrow.parquet as pq, logging
 from airflow import DAG
-from airflow.operators.python import PythonOperator
+from airflow.providers.standard.operators.python import PythonOperator
 
 APP_ID  = os.getenv("TFL_APP_ID")
 APP_KEY = os.getenv("TFL_APP_KEY")
@@ -40,7 +40,7 @@ def fetch_and_write(**ctx):
 
 default_args = {"retries": 2, "retry_delay": timedelta(minutes = 2)}
 with DAG(
-    dag_id="tfl_ingest",
+    dag_id="tfl_ingest_dag",
     start_date=datetime(2025,1,1),
     schedule="*/2 * * * *",  # be polite; predictions refresh ~30s
     catchup=False,
