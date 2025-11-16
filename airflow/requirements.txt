@@ -3,7 +3,8 @@ pyarrow>=13
 duckdb>=1.0
 pandas
 great-expectations>=1.9
+# Airflow provider for OpenLineage comes via constraints; do not pin to avoid conflicts
 apache-airflow-providers-openlineage
-dbt-core>=1.7
-dbt-duckdb>=1.7
-openlineage-dbt
+dbt-core==1.7.16
+dbt-duckdb==1.7.4
+openlineage-dbt==1.38.0

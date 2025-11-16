@@ -6,6 +6,7 @@ services:
       AIRFLOW__OPENLINEAGE__TRANSPORT: '{"type":"http","url":"http://marquez:5000","endpoint":"api/v1/lineage"}'
       AIRFLOW__OPENLINEAGE__NAMESPACE: "tfl-realtime"
       _PIP_ADDITIONAL_REQUIREMENTS: "-r /opt/airflow/requirements.txt"
+      PIP_CONSTRAINT: "https://raw.githubusercontent.com/apache/airflow/constraints-3.1.2/constraints-3.12.txt"
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/requirements.txt:/opt/airflow/requirements.txt
@@ -19,6 +20,7 @@ services:
       AIRFLOW__OPENLINEAGE__TRANSPORT: '{"type":"http","url":"http://marquez:5000","endpoint":"api/v1/lineage"}'
       AIRFLOW__OPENLINEAGE__NAMESPACE: "tfl-realtime"
       _PIP_ADDITIONAL_REQUIREMENTS: "-r /opt/airflow/requirements.txt"
+      PIP_CONSTRAINT: "https://raw.githubusercontent.com/apache/airflow/constraints-3.1.2/constraints-3.12.txt"
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/requirements.txt:/opt/airflow/requirements.txt
@@ -32,6 +34,7 @@ services:
       AIRFLOW__OPENLINEAGE__TRANSPORT: '{"type":"http","url":"http://marquez:5000","endpoint":"api/v1/lineage"}'
       AIRFLOW__OPENLINEAGE__NAMESPACE: "tfl-realtime"
       _PIP_ADDITIONAL_REQUIREMENTS: "-r /opt/airflow/requirements.txt"
+      PIP_CONSTRAINT: "https://raw.githubusercontent.com/apache/airflow/constraints-3.1.2/constraints-3.12.txt"
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/requirements.txt:/opt/airflow/requirements.txt
@@ -45,10 +48,12 @@ services:
       AIRFLOW__OPENLINEAGE__TRANSPORT: '{"type":"http","url":"http://marquez:5000","endpoint":"api/v1/lineage"}'
       AIRFLOW__OPENLINEAGE__NAMESPACE: "tfl-realtime"
       _PIP_ADDITIONAL_REQUIREMENTS: "-r /opt/airflow/requirements.txt"
+      PIP_CONSTRAINT: "https://raw.githubusercontent.com/apache/airflow/constraints-3.1.2/constraints-3.12.txt"
 
   airflow-triggerer:
     environment:
       _PIP_ADDITIONAL_REQUIREMENTS: "-r /opt/airflow/requirements.txt"
+      PIP_CONSTRAINT: "https://raw.githubusercontent.com/apache/airflow/constraints-3.1.2/constraints-3.12.txt"
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/requirements.txt:/opt/airflow/requirements.txt
