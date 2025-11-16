@@ -1,8 +1,8 @@
 from __future__ import annotations
 from datetime import datetime
 from airflow import DAG
-from airflow.operators.bash import BashOperator
-from airflow.operators.python import PythonOperator
+from airflow.providers.standard.operators.bash import BashOperator
+from airflow.providers.standard.operators.python import PythonOperator
 import duckdb, pandas as pd, great_expectations as gx
 
 def gx_validate():
