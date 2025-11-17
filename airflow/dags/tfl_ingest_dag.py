@@ -1,12 +1,30 @@
 from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 import os, pathlib, requests, pyarrow as pa, pyarrow.parquet as pq, logging
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 from airflow import DAG
 from airflow.providers.standard.operators.python import PythonOperator
 
 APP_ID  = os.getenv("TFL_APP_ID")
 APP_KEY = os.getenv("TFL_APP_KEY")
-STOP_IDS = [s for s in os.getenv("TFL_STOPPOINT_IDS","").split(",") if s]
+
+# Normalize, strip whitespace, and de-duplicate StopPoint IDs while preserving order
+_raw_ids = os.getenv("TFL_STOPPOINT_IDS", "")
+STOP_IDS = []
+seen = set()
+for s in [p.strip() for p in _raw_ids.split(",") if p.strip()]:
+    if s not in seen:
+        STOP_IDS.append(s)
+        seen.add(s)
+
+# Shared requests Session with retry/backoff and polite headers
+_session = requests.Session()
+_retry = Retry(total=3, connect=3, read=3, status_forcelist=(429, 500, 502, 503, 504), backoff_factor=0.5, allowed_methods=("GET",))
+_adapter = HTTPAdapter(max_retries=_retry)
+_session.mount("https://", _adapter)
+_session.mount("http://", _adapter)
+_HEADERS = {"User-Agent": "tfl-realtime-lakehouse/1.0 (+https://github.com/aosman101/tfl-realtime-lakehouse)"}
 
 def fetch_and_write(**ctx):
     now_utc = datetime.now(timezone.utc)
@@ -18,9 +36,16 @@ def fetch_and_write(**ctx):
     for stop in STOP_IDS:
         url = f"https://api.tfl.gov.uk/StopPoint/{stop}/Arrivals"
         params = {"app_id": APP_ID, "app_key": APP_KEY} if APP_ID and APP_KEY else {}
-        r = requests.get(url, params=params, timeout=20)
-        r.raise_for_status()
-        rows.extend(r.json())
+        try:
+            r = _session.get(url, params=params, headers=_HEADERS, timeout=20)
+            r.raise_for_status()
+            payload = r.json()
+            if isinstance(payload, list):
+                rows.extend(payload)
+            else:
+                logging.warning("Non-list payload for stop %s: %s", stop, type(payload))
+        except Exception as e:
+            logging.error("Failed to fetch arrivals for stop %s: %s", stop, e)
 
     if not rows:
         logging.warning("No arrivals returned; check STOPPOINT IDS or API limits.")

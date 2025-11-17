@@ -6,4 +6,4 @@ select
   cast(timeToStation as int)   as time_to_station_s,
   try_cast(timestamp as timestamp) as event_ts,
   now()                        as ingested_at
-from read_parquet('/opt/airflow/data/raw/date=*/arrivals_*.parquet');
+from read_parquet('/opt/airflow/data/raw/date=*/arrivals_*.parquet', hive_partitioning=true);

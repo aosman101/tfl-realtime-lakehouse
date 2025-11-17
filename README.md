@@ -42,44 +42,41 @@ Prerequisites
 - StopPoint IDs (NaPTAN) you want to track (comma-separated)
 
 1. Clone the repo
-"`bash
+```bash
 git clone https://github.com/aosman101/tfl-realtime-lakehouse.git
 cd tfl-realtime-lakehouse
 ```
 
 2. Copy the env template and configure
-"`bash
+```bash
 cp .env.example .env
 # edit .env and set the values below
 ```
 
 Required environment variables (.env)
-"`env
+```env
 ## Airflow runtime (set by docker-compose during runtime)
 
-AIRFLOW_UID =
+AIRFLOW_UID=
 
-## TfL credentials (optional - reduces throttling)
-
-TFL_APP_ID =
-TFL_APP_KEY =
+## TfL credentials (recommended - avoids throttling)
+TFL_APP_ID=
+TFL_APP_KEY=
 
 ## Comma-separated IDs of StopPoints for which to retrieve arrival data
-
 TFL_STOPPOINT_IDS=490008660N,490009133G
 
 ## OpenLineage / Marquez
-
 OPENLINEAGE_NAMESPACE=tfl-realtime
 OPENLINEAGE_URL=http://marquez:5000
 ```
 
 3. Start services
 Use Docker Compose:
-"`bash
-docker compose up --build
+```bash
+docker compose up --build -d
 # or for older Docker Compose:
-Docker-compose up --build
+docker-compose up --build -d
 ```
 
 This will bring up the Airflow web server/scheduler (and any other services defined, such as Marquez). If you prefer to run only Airflow locally without containers, you can follow the Airflow docs and point Airflow to use the local directories in this repo.
@@ -87,8 +84,8 @@ This will bring up the Airflow web server/scheduler (and any other services defi
 4. Open Airflow UI
 - Default: http://localhost:8080
 - Look for DAGs:
-  - tfl_ingest_dag.
-  - tfl_transform_dag.
+  - tfl_ingest_dag
+  - tfl_transform_dag
 
 5. Trigger the ingest DAG manually (or wait for its schedule)
 - From the UI, click "tfl_ingest_dag" -> Trigger DAG.
@@ -102,7 +99,7 @@ This will bring up the Airflow web server/scheduler (and any other services defi
 
 Example quick check using DuckDB (locally)
 
-"`bash
+```bash
 ## Launch a DuckDB shell in the specified folder.
 duckdb
 -- inside duckdb shell:
@@ -115,7 +112,7 @@ SELECT * FROM 'data/raw/arrivals_snapshot_2025-11-11.parquet' LIMIT 10;
 
 7. Run dbt transforms
 From the repo root:
-"`bash
+```bash
 # If you have dbt installed locally and a DuckDB profile in dbt_project/profiles.yml:
 cd dbt_project
 dbt debug
@@ -128,7 +125,7 @@ This will initiate your DBT models (staging -> marts) that materialise into Duck
 
 8. Run Great Expectations validations
 From the project root:
-"`bash
+```bash
 ## Example pattern: run expectation suite or checkpoint
 
 great_expectations --v3-api checkpoint run <checkpoint-name>
@@ -232,10 +229,10 @@ dbt test --models marts.new_model
 ## Important commands
 
 - Start everything
-  docker compose up --build
+  docker compose up --build -d
 
 - Trigger a DAG (Airflow CLI inside container)
-  docker compose run --rm airflow-webserver airflow dags trigger tfl_ingest_dag
+  docker compose run --rm airflow-apiserver airflow dags trigger tfl_ingest_dag
 
 - List Parquet files
   ls -lah data/raw

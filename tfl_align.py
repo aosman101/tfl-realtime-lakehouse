@@ -14,9 +14,11 @@ Usage:
   python tfl_align.py "Central" --outdir data/bronze --workers 8
 
 Environment variables (optional):
-  TFL_KEY_LINE       - app_key for Line API
-  TFL_KEY_STOPPOINT  - app_key for StopPoint API
-  TFL_KEY_ARRIVALS   - app_key for Arrivals API
+    TFL_APP_ID         - TfL application id (recommended)
+    TFL_APP_KEY        - TfL application key (recommended)
+    TFL_KEY_LINE       - legacy single key for Line API (fallback)
+    TFL_KEY_STOPPOINT  - legacy single key for StopPoint API (fallback)
+    TFL_KEY_ARRIVALS   - legacy single key for Arrivals API (fallback)
 
 If keys are not set the script will call the API without an app_key (may be rate-limited).
 """
@@ -39,7 +41,11 @@ from urllib3.util.retry import Retry
 
 BASE = "https://api.tfl.gov.uk"
 
-# env var names
+# Credentials
+APP_ID = os.getenv("TFL_APP_ID")
+APP_KEY = os.getenv("TFL_APP_KEY")
+
+# Legacy fallbacks if APP_ID/APP_KEY not provided
 KEY_LINE = os.getenv("TFL_KEY_LINE")
 KEY_STOPPOINT = os.getenv("TFL_KEY_STOPPOINT")
 KEY_ARRIVALS = os.getenv("TFL_KEY_ARRIVALS")
@@ -64,13 +70,21 @@ def _make_session(retries: int = 3, backoff_factor: float = 0.5) -> requests.Ses
 _SESSION = _make_session()
 
 
-def _get(path: str, key: Optional[str] = None, params: Optional[Dict[str, Any]] = None, timeout: int = 15) -> Tuple[Any, Dict[str, str]]:
-    params = params.copy() if params else {}
-    if key:
-        # Some TfL endpoints expect app_key parameter; include if set
+def _get(path: str, *, key: Optional[str] = None, timeout: int = 15) -> Tuple[Any, Dict[str, str]]:
+    """GET helper that prefers app_id+app_key if provided, else falls back to single key.
+
+    Returns: (json_body, response_headers)
+    """
+    params: Dict[str, Any] = {}
+    headers = {"User-Agent": "tfl-realtime-lakehouse/1.0 (+https://github.com/aosman101/tfl-realtime-lakehouse)"}
+    if APP_ID and APP_KEY:
+        params["app_id"] = APP_ID
+        params["app_key"] = APP_KEY
+    elif key:
+        # Some TfL endpoints accepted single-key access historically
         params["app_key"] = key
     url = f"{BASE}{path}"
-    r = _SESSION.get(url, params=params, timeout=timeout)
+    r = _SESSION.get(url, params=params, headers=headers, timeout=timeout)
     r.raise_for_status()
     # return JSON-decoded body and headers dict
     return r.json(), dict(r.headers)
@@ -81,14 +95,14 @@ def canonical_line_id(line_input: str) -> str:
 
     Raises RuntimeError if not found or unexpected response.
     """
-    data, _ = _get(f"/Line/{line_input}", KEY_LINE)
+    data, _ = _get(f"/Line/{line_input}", key=KEY_LINE)
     if isinstance(data, list) and data:
         return data[0].get("id")
     raise RuntimeError(f"Line not found or unexpected response for '{line_input}'")
 
 
 def get_stoppoints_for_line(line_id: str) -> List[Dict[str, Any]]:
-    data, _ = _get(f"/Line/{line_id}/StopPoints", KEY_STOPPOINT)
+    data, _ = _get(f"/Line/{line_id}/StopPoints", key=KEY_STOPPOINT)
     if isinstance(data, list):
         return data
     # unexpected; return empty list
@@ -96,7 +110,7 @@ def get_stoppoints_for_line(line_id: str) -> List[Dict[str, Any]]:
 
 
 def get_arrivals_for_stop(naptan_id: str) -> List[Dict[str, Any]]:
-    data, _ = _get(f"/StopPoint/{naptan_id}/Arrivals", KEY_ARRIVALS)
+    data, _ = _get(f"/StopPoint/{naptan_id}/Arrivals", key=KEY_ARRIVALS)
     if isinstance(data, list):
         return data
     return []
