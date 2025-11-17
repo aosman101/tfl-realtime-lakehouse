@@ -5,8 +5,10 @@ services:
       AIRFLOW__CORE__LOAD_EXAMPLES: "False"
       AIRFLOW__OPENLINEAGE__TRANSPORT: '{"type":"http","url":"http://marquez:5000","endpoint":"api/v1/lineage"}'
       AIRFLOW__OPENLINEAGE__NAMESPACE: "tfl-realtime"
-      _PIP_ADDITIONAL_REQUIREMENTS: "-r /opt/airflow/requirements.txt"
-      PIP_CONSTRAINT: "https://raw.githubusercontent.com/apache/airflow/constraints-3.1.2/constraints-3.12.txt"
+      # Do NOT install heavy dependencies on the API server; only serves the UI/API
+      PIP_CONSTRAINT: "https://raw.githubusercontent.com/apache/airflow/constraints-3.1.2/constraints-3.11.txt"
+      AIRFLOW__CORE__AUTH_MANAGER: "airflow.api_fastapi.auth.managers.simple.simple_auth_manager.SimpleAuthManager"
+    command: api-server
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/requirements.txt:/opt/airflow/requirements.txt
@@ -20,7 +22,6 @@ services:
       AIRFLOW__OPENLINEAGE__TRANSPORT: '{"type":"http","url":"http://marquez:5000","endpoint":"api/v1/lineage"}'
       AIRFLOW__OPENLINEAGE__NAMESPACE: "tfl-realtime"
       _PIP_ADDITIONAL_REQUIREMENTS: "-r /opt/airflow/requirements.txt"
-      PIP_CONSTRAINT: "https://raw.githubusercontent.com/apache/airflow/constraints-3.1.2/constraints-3.12.txt"
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/requirements.txt:/opt/airflow/requirements.txt
@@ -34,7 +35,6 @@ services:
       AIRFLOW__OPENLINEAGE__TRANSPORT: '{"type":"http","url":"http://marquez:5000","endpoint":"api/v1/lineage"}'
       AIRFLOW__OPENLINEAGE__NAMESPACE: "tfl-realtime"
       _PIP_ADDITIONAL_REQUIREMENTS: "-r /opt/airflow/requirements.txt"
-      PIP_CONSTRAINT: "https://raw.githubusercontent.com/apache/airflow/constraints-3.1.2/constraints-3.12.txt"
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/requirements.txt:/opt/airflow/requirements.txt
@@ -47,13 +47,17 @@ services:
       AIRFLOW__CORE__LOAD_EXAMPLES: "False"
       AIRFLOW__OPENLINEAGE__TRANSPORT: '{"type":"http","url":"http://marquez:5000","endpoint":"api/v1/lineage"}'
       AIRFLOW__OPENLINEAGE__NAMESPACE: "tfl-realtime"
-      _PIP_ADDITIONAL_REQUIREMENTS: "-r /opt/airflow/requirements.txt"
-      PIP_CONSTRAINT: "https://raw.githubusercontent.com/apache/airflow/constraints-3.1.2/constraints-3.12.txt"
+      # No extra requirements needed on dag-processor; avoids restart loop when file not mounted
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/requirements.txt:/opt/airflow/requirements.txt
+      - ./dbt_project:/opt/airflow/dbt
+      - ./data:/opt/airflow/data
+    env_file: [.env]
 
   airflow-triggerer:
     environment:
       _PIP_ADDITIONAL_REQUIREMENTS: "-r /opt/airflow/requirements.txt"
-      PIP_CONSTRAINT: "https://raw.githubusercontent.com/apache/airflow/constraints-3.1.2/constraints-3.12.txt"
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/requirements.txt:/opt/airflow/requirements.txt
