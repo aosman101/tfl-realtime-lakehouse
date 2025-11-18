@@ -1,15 +1,17 @@
 services:
-  # mount code & enable OpenLineage on all Airflow services that run tasks
+  # Build a custom Airflow image with duckdb/dbt/GX baked in so DAG parsing
+  # doesn't rely on runtime pip installs.
   airflow-apiserver:
+    build: .
+    image: tfl-airflow-with-deps:3.1.2
     environment:
       AIRFLOW__CORE__LOAD_EXAMPLES: "False"
       AIRFLOW__OPENLINEAGE__TRANSPORT: '{"type":"http","url":"http://marquez:5000","endpoint":"api/v1/lineage"}'
       AIRFLOW__OPENLINEAGE__NAMESPACE: "tfl-realtime"
-      # Do NOT install heavy dependencies on the API server; only serves the UI/API
       PIP_CONSTRAINT: "https://raw.githubusercontent.com/apache/airflow/constraints-3.1.2/constraints-3.11.txt"
       AIRFLOW__CORE__AUTH_MANAGER: "airflow.api_fastapi.auth.managers.simple.simple_auth_manager.SimpleAuthManager"
-      _PIP_ADDITIONAL_REQUIREMENTS: "-r /opt/airflow/requirements.txt"
-
+      # Dependencies baked into the image; keep runtime installs disabled.
+      _PIP_ADDITIONAL_REQUIREMENTS: ""
     command: api-server
     volumes:
       - ./airflow/dags:/opt/airflow/dags
@@ -19,11 +21,13 @@ services:
     env_file: [.env]
 
   airflow-scheduler:
+    build: .
+    image: tfl-airflow-with-deps:3.1.2
     environment:
       AIRFLOW__CORE__LOAD_EXAMPLES: "False"
       AIRFLOW__OPENLINEAGE__TRANSPORT: '{"type":"http","url":"http://marquez:5000","endpoint":"api/v1/lineage"}'
       AIRFLOW__OPENLINEAGE__NAMESPACE: "tfl-realtime"
-      # Runtime pip installs disabled; dependencies baked into image
+      _PIP_ADDITIONAL_REQUIREMENTS: ""
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/requirements.txt:/opt/airflow/requirements.txt
@@ -32,11 +36,13 @@ services:
     env_file: [.env]
 
   airflow-worker:
+    build: .
+    image: tfl-airflow-with-deps:3.1.2
     environment:
       AIRFLOW__CORE__LOAD_EXAMPLES: "False"
       AIRFLOW__OPENLINEAGE__TRANSPORT: '{"type":"http","url":"http://marquez:5000","endpoint":"api/v1/lineage"}'
       AIRFLOW__OPENLINEAGE__NAMESPACE: "tfl-realtime"
-      # Runtime pip installs disabled; dependencies baked into image
+      _PIP_ADDITIONAL_REQUIREMENTS: ""
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/requirements.txt:/opt/airflow/requirements.txt
@@ -45,13 +51,13 @@ services:
     env_file: [.env]
 
   airflow-dag-processor:
+    build: .
+    image: tfl-airflow-with-deps:3.1.2
     environment:
       AIRFLOW__CORE__LOAD_EXAMPLES: "False"
       AIRFLOW__OPENLINEAGE__TRANSPORT: '{"type":"http","url":"http://marquez:5000","endpoint":"api/v1/lineage"}'
       AIRFLOW__OPENLINEAGE__NAMESPACE: "tfl-realtime"
-      _PIP_ADDITIONAL_REQUIREMENTS: "-r /opt/airflow/requirements.txt"
-
-      # No extra requirements needed on dag-processor; avoids restart loop when file not mounted
+      _PIP_ADDITIONAL_REQUIREMENTS: ""
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/requirements.txt:/opt/airflow/requirements.txt
@@ -60,8 +66,10 @@ services:
     env_file: [.env]
 
   airflow-triggerer:
+    build: .
+    image: tfl-airflow-with-deps:3.1.2
     environment:
-      # Runtime pip installs disabled; dependencies baked into image
+      _PIP_ADDITIONAL_REQUIREMENTS: ""
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/requirements.txt:/opt/airflow/requirements.txt
