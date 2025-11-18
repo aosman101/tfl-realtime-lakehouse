@@ -1,6 +1,6 @@
 # 🚦 tfl-realtime-lakehouse
 
-[![Status](https://img.shields.io/badge/status-in_progress-yellow)](#)
+[![Status](https://img.shields.io/badge/status-running-brightgreen)](#)
 [![Airflow](https://img.shields.io/badge/orchestration-Airflow-blue)](#)
 [![dbt+DuckDB](https://img.shields.io/badge/transform-dbt%20%2B%20DuckDB-blue)](#)
 [![GX](https://img.shields.io/badge/data%20quality-Great%20Expectations-blue)](#)
@@ -20,7 +20,7 @@ Here's an overview of the high-level workflow:
 
 ## **Interactive Walkthrough: What You Will Do**
 
-This README is written as a guided, interactive walkthrough, allowing you to follow along and run the project step-by-step.
+This README is a guided, interactive walkthrough with copy-pasteable commands and quick health checks you can screenshot.
 
 1. Start the platform services (Airflow, Marquez, any services in Docker Compose).
 2. Trigger the ingest DAG to collect live TfL arrival data.
@@ -71,8 +71,8 @@ OPENLINEAGE_NAMESPACE=tfl-realtime
 OPENLINEAGE_URL=http://marquez:5000
 ```
 
-3. Start services
-Use Docker Compose:
+3. Start services (Docker Compose)
+Use Docker Compose (requires Docker Desktop):
 ```bash
 docker compose up --build -d
 # or for older Docker Compose:
@@ -81,15 +81,25 @@ docker-compose up --build -d
 
 This will bring up the Airflow web server/scheduler (and any other services defined, such as Marquez). If you prefer to run only Airflow locally without containers, you can follow the Airflow docs and point Airflow to use the local directories in this repo.
 
-4. Open Airflow UI
-- Default: http://localhost:8080
-- Look for DAGs:
-  - tfl_ingest_dag
-  - tfl_transform_dag
+4. Open the UIs
+- Airflow (API/UI): http://localhost:8080
+- Marquez (Lineage):
+  - API: http://localhost:5050
+  - Web: http://localhost:3000
 
-5. Trigger the ingest DAG manually (or wait for its schedule)
-- From the UI, click "tfl_ingest_dag" -> Trigger DAG.
-- After a successful run, check the data folder.
+Look for two DAGs in Airflow:
+- tfl_ingest_dag
+- tfl_transform_dag
+
+5. Trigger the ingest DAG (manually)
+- From the UI: click "tfl_ingest_dag" → Trigger DAG.
+- Or via CLI inside the scheduler container:
+
+```bash
+docker compose exec airflow-scheduler bash -lc "airflow dags trigger tfl_ingest_dag"
+```
+
+After a successful run, check the data folder.
 
 6. Inspect the generated data
 - Raw/landing parquet files are written under:
@@ -229,24 +239,74 @@ dbt test --models marts.new_model
 ## Important commands
 
 - Start everything
-  docker compose up --build -d
+```bash
+docker compose up --build -d
+```
 
-- Trigger a DAG (Airflow CLI inside container)
-  docker compose run --rm airflow-apiserver airflow dags trigger tfl_ingest_dag
+- Health checks (screenshot-friendly)
+```bash
+# Compose status
+docker compose ps
+
+# Airflow API version (no auth needed)
+curl -s http://localhost:8080/api/v2/version | jq
+
+# List DAGs via CLI in scheduler
+docker compose exec airflow-scheduler bash -lc "airflow dags list | head -n 20"
+```
+
+- Trigger a DAG (Airflow CLI inside scheduler)
+```bash
+docker compose exec airflow-scheduler bash -lc "airflow dags trigger tfl_ingest_dag"
+# (optional) Trigger transform
+docker compose exec airflow-scheduler bash -lc "airflow dags trigger tfl_transform_dag"
+```
 
 - List Parquet files
-  ls -lah data/raw
+```bash
+ls -lah data/raw
+```
 
 - Inspect a parquet with DuckDB
-  duckdb "SELECT * FROM 'data/raw/<your-file>.parquet' LIMIT 10;"
+```bash
+duckdb "SELECT * FROM 'data/raw/<your-file>.parquet' LIMIT 10;"
+```
 
 - Run dbt
-  cd dbt_project
-  dbt run
-  dbt test
+```bash
+cd dbt_project
+dbt run
+dbt test
+```
 
 - Run Great Expectations
-  great_expectations --v3-api checkpoint run <checkpoint>
+```bash
+great_expectations --v3-api checkpoint run <checkpoint>
+```
+
+---
+
+## Final sanity test (copy, run, screenshot)
+
+From the repo root while services are running:
+
+```bash
+# 1) Show containers and health
+docker compose ps
+
+# 2) Airflow API version
+curl -s http://localhost:8080/api/v2/version | jq
+
+# 3) List DAGs via CLI
+docker compose exec airflow-scheduler bash -lc "airflow dags list | head -n 20"
+
+# 4) Trigger ingest and inspect raw outputs
+docker compose exec airflow-scheduler bash -lc "airflow dags trigger tfl_ingest_dag"
+sleep 10
+ls -lah data/raw | head -n 30
+```
+
+These four blocks typically produce clean, screenshot-ready outputs for status, version info, visible DAGs, and files being written to `data/raw/`.
 
 ---
 
