@@ -7,6 +7,6 @@ select
   try_cast(timestamp as timestamp) as event_ts,
   now()                        as ingested_at
 from read_parquet(
-  '{{ env_var("RAW_ARRIVALS_PATH", "../data/raw/date=*/arrivals_*.parquet") }}',
+  '../data/raw/date=*/arrivals_*.parquet',
   hive_partitioning=true
 )

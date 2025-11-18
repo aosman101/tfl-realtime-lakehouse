@@ -3,6 +3,7 @@ tfl_realtime:
   outputs:
     dev:
       type: duckdb
-      path: /opt/airflow/data/silver/tfl.duckdb
+      # Local path to the DuckDB file. Use a workspace-relative path so dbt works outside containers.
+      path: ../data/silver/tfl.duckdb
       threads: 4
       extensions: [httpfs, parquet]

@@ -1,4 +1,13 @@
-select
+
+  
+    
+    
+
+    create  table
+      "tfl"."main_staging"."stg_arrivals__dbt_tmp"
+  
+    as (
+      select
   cast(lineId as varchar)      as line_id,
   cast(stopId as varchar)      as stop_id,
   platformName                 as platform_name,
@@ -7,6 +16,9 @@ select
   try_cast(timestamp as timestamp) as event_ts,
   now()                        as ingested_at
 from read_parquet(
-  '{{ env_var("RAW_ARRIVALS_PATH", "../data/raw/date=*/arrivals_*.parquet") }}',
+  '../data/raw/date=*/arrivals_*.parquet',
   hive_partitioning=true
 )
+    );
+  
+  
