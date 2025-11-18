@@ -1,0 +1,9 @@
+FROM apache/airflow:3.1.2
+
+# Pre-install pipeline dependencies (duckdb, dbt, pandas, GX) as airflow user to avoid permission issues.
+USER airflow
+COPY --chown=airflow:0 airflow/requirements.txt /tmp/requirements.txt
+RUN pip install --no-cache-dir -r /tmp/requirements.txt && rm -f /tmp/requirements.txt
+
+LABEL org.opencontainers.image.source="https://github.com/aosman101/tfl-realtime-lakehouse" \
+    org.opencontainers.image.description="Custom Airflow image with duckdb, dbt, Great Expectations preinstalled for TfL realtime lakehouse"
