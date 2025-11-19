@@ -1,6 +1,15 @@
-with arrivals as (
+
+  
+    
+    
+
+    create  table
+      "tfl"."main_marts"."fct_headways__dbt_tmp"
+  
+    as (
+      with arrivals as (
   select line_id, stop_id, event_ts
-  from {{ ref('stg_arrivals') }}
+  from "tfl"."main_staging"."stg_arrivals"
   where event_ts is not null
 ),
 ordered as (
@@ -22,3 +31,6 @@ select
   quantile(headway_s, 0.9) as p90_headway_s
 from gaps
 group by 1,2,3
+    );
+  
+  

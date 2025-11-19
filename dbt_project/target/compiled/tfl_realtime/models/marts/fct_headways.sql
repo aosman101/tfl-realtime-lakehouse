@@ -1,6 +1,6 @@
 with arrivals as (
   select line_id, stop_id, event_ts
-  from {{ ref('stg_arrivals') }}
+  from "tfl"."main_staging"."stg_arrivals"
   where event_ts is not null
 ),
 ordered as (
