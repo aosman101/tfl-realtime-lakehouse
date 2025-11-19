@@ -3,8 +3,12 @@ from datetime import datetime, timedelta, timezone
 import os, pathlib, requests, pyarrow as pa, pyarrow.parquet as pq, logging
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
-from airflow import DAG
-from airflow.providers.standard.operators.python import PythonOperator
+try:
+    from airflow import DAG
+    from airflow.providers.standard.operators.python import PythonOperator
+except ImportError:  # Airflow not installed (e.g., running fetch locally)
+    DAG = None
+    PythonOperator = None
 
 APP_ID  = os.getenv("TFL_APP_ID")
 APP_KEY = os.getenv("TFL_APP_KEY")
@@ -26,9 +30,21 @@ _session.mount("https://", _adapter)
 _session.mount("http://", _adapter)
 _HEADERS = {"User-Agent": "tfl-realtime-lakehouse/1.0 (+https://github.com/aosman101/tfl-realtime-lakehouse)"}
 
+_default_raw = pathlib.Path("/opt/airflow/data/raw")
+_detected_raw = None
+for parent in pathlib.Path(__file__).resolve().parents:
+    candidate = parent / "data"
+    if candidate.exists():
+        _detected_raw = candidate / "raw"
+        break
+
+RAW_OUTPUT_DIR = pathlib.Path(
+    os.getenv("RAW_ARRIVALS_DIR", _detected_raw or _default_raw)
+)
+
 def fetch_and_write(**ctx):
     now_utc = datetime.now(timezone.utc)
-    out_dir = pathlib.Path("/opt/airflow/data/raw/date="+now_utc.strftime("%Y-%m-%d"))
+    out_dir = RAW_OUTPUT_DIR / f"date={now_utc.strftime('%Y-%m-%d')}"
     out_dir.mkdir(parents=True, exist_ok=True)
     ts = now_utc.strftime("%Y%m%d_%H%M%S")
 
@@ -64,13 +80,15 @@ def fetch_and_write(**ctx):
     pq.write_table(table, out_dir / f"arrivals_{ts}.parquet")
 
 default_args = {"retries": 2, "retry_delay": timedelta(minutes = 2)}
-with DAG(
-    dag_id="tfl_ingest_dag",
-    start_date=datetime(2025,1,1),
-    schedule="*/2 * * * *",  # be polite; predictions refresh ~30s
-    catchup=False,
-    max_active_runs = 1,
-    default_args = default_args,
-    tags=["tfl","ingest"],
-) as dag:
-    PythonOperator(task_id = "fetch_and_write", python_callable = fetch_and_write)
+
+if DAG is not None:
+    with DAG(
+        dag_id="tfl_ingest_dag",
+        start_date=datetime(2025,1,1),
+        schedule="*/2 * * * *",  # be polite; predictions refresh ~30s
+        catchup=False,
+        max_active_runs = 1,
+        default_args = default_args,
+        tags=["tfl","ingest"],
+    ) as dag:
+        PythonOperator(task_id = "fetch_and_write", python_callable = fetch_and_write)
