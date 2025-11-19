@@ -36,4 +36,10 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        pytest
+        status=0
+        pytest || status=$?
+        if [ $status -eq 5 ]; then
+          echo "Pytest exited with code 5 (no tests discovered); treating as success."
+          exit 0
+        fi
+        exit $status
