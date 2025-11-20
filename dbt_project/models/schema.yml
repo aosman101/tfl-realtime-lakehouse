@@ -1,0 +1,37 @@
+version: 2
+
+models:
+  - name: stg_arrivals
+    description: Staging snapshot of raw arrival events shaped for marts.
+    columns:
+      - name: line_id
+        tests:
+          - not_null
+      - name: stop_id
+        tests:
+          - not_null
+      - name: event_ts
+        tests:
+          - not_null
+
+  - name: fct_headways
+    description: Headway metrics aggregated by line, stop, and hour.
+    columns:
+      - name: line_id
+        tests:
+          - not_null
+      - name: stop_id
+        tests:
+          - not_null
+      - name: hour
+        tests:
+          - not_null
+      - name: avg_headway_s
+        tests:
+          - not_null
+      - name: p50_headway_s
+        tests:
+          - not_null
+      - name: p90_headway_s
+        tests:
+          - not_null
