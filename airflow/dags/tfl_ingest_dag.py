@@ -6,9 +6,12 @@ from urllib3.util.retry import Retry
 try:
     from airflow import DAG
     from airflow.providers.standard.operators.python import PythonOperator
+    from airflow.exceptions import AirflowFailException
 except ImportError:  # Airflow not installed (e.g., running fetch locally)
     DAG = None
     PythonOperator = None
+    class AirflowFailException(RuntimeError):  # type: ignore
+        ...
 
 APP_ID  = os.getenv("TFL_APP_ID")
 APP_KEY = os.getenv("TFL_APP_KEY")
@@ -43,6 +46,9 @@ RAW_OUTPUT_DIR = pathlib.Path(
 )
 
 def fetch_and_write(**ctx):
+    if not STOP_IDS:
+        raise AirflowFailException("No StopPoint IDs configured. Set TFL_STOPPOINT_IDS in your environment.")
+
     now_utc = datetime.now(timezone.utc)
     out_dir = RAW_OUTPUT_DIR / f"date={now_utc.strftime('%Y-%m-%d')}"
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -64,8 +70,7 @@ def fetch_and_write(**ctx):
             logging.error("Failed to fetch arrivals for stop %s: %s", stop, e)
 
     if not rows:
-        logging.warning("No arrivals returned; check STOPPOINT IDS or API limits.")
-        return
+        raise AirflowFailException("No arrivals returned; check TFL_STOPPOINT_IDS or TfL API limits/credentials.")
 
     table = pa.Table.from_pylist([
         {
@@ -84,7 +89,7 @@ default_args = {"retries": 2, "retry_delay": timedelta(minutes = 2)}
 if DAG is not None:
     with DAG(
         dag_id="tfl_ingest_dag",
-        start_date=datetime(2025,1,1),
+        start_date=datetime(2024,1,1),
         schedule="*/2 * * * *",  # be polite; predictions refresh ~30s
         catchup=False,
         max_active_runs = 1,

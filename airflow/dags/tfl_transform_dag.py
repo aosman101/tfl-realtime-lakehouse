@@ -1,5 +1,6 @@
 from __future__ import annotations
 from datetime import datetime
+import os
 from airflow import DAG
 from airflow.providers.standard.operators.bash import BashOperator
 from airflow.providers.standard.operators.python import PythonOperator
@@ -18,7 +19,13 @@ def gx_validate():
         print("GX: No rows returned from staging.stg_arrivals; skipping validation")
         return
 
-    context = gx.get_context()
+    # Prefer an ephemeral context to avoid missing-project errors; allow override with GX_CONTEXT_ROOT
+    context_root = os.getenv("GX_CONTEXT_ROOT")
+    try:
+        context = gx.get_context(mode="ephemeral") if not context_root else gx.get_context(context_root_dir=context_root)
+    except TypeError:
+        # Fallback for GX versions without the mode kwarg
+        context = gx.get_context(context_root_dir=context_root) if context_root else gx.get_context()
 
     # Data source & asset (idempotent)
     try:
@@ -86,7 +93,7 @@ def gx_validate():
 
 with DAG(
     dag_id="tfl_transform_dag",
-    start_date=datetime(2025,1,1),
+    start_date=datetime(2024,1,1),
     schedule=None, catchup=False, tags=["tfl","dbt","quality"]
 ) as dag:
     # dbt build (emit lineage via dbt-ol)
