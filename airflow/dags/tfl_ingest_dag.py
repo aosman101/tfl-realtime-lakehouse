@@ -1,6 +1,6 @@
 from __future__ import annotations
 from datetime import datetime, timedelta, timezone
-import os, pathlib, requests, pyarrow as pa, pyarrow.parquet as pq, logging
+import os, pathlib, requests, logging
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 try:
@@ -46,6 +46,10 @@ RAW_OUTPUT_DIR = pathlib.Path(
 )
 
 def fetch_and_write(**ctx):
+    # Heavy deps (pyarrow) only when the task actually executes
+    import pyarrow as pa
+    import pyarrow.parquet as pq
+
     if not STOP_IDS:
         raise AirflowFailException("No StopPoint IDs configured. Set TFL_STOPPOINT_IDS in your environment.")
 

@@ -4,9 +4,13 @@ import os
 from airflow import DAG
 from airflow.providers.standard.operators.bash import BashOperator
 from airflow.providers.standard.operators.python import PythonOperator
-import duckdb, pandas as pd, great_expectations as gx
 
 def gx_validate():
+    # Defer heavy imports to task runtime to keep DAG parsing fast
+    import duckdb
+    import pandas as pd
+    import great_expectations as gx
+
     """Run a minimal, idempotent GX validation on recent staging rows.
 
     Uses get-or-add semantics for data source, asset, suite and checkpoint so repeated
