@@ -8,7 +8,7 @@
 [![Lineage](https://img.shields.io/badge/lineage-OpenLineage%20%2B%20Marquez-4F46E5)](docker-compose.override.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-Laptop-friendly realtime lakehouse on live TfL arrivals. Docker Compose spins up Airflow (Celery) plus Marquez; the ingest DAG writes Parquet snapshots, dbt + DuckDB build marts, inline Great Expectations validation runs, and OpenLineage metadata lands in Marquez so you can see runs and datasets end-to-end.
+This is a laptop-friendly real-time lakehouse that utilises live Transport for London (TfL) arrivals. Docker Compose is used to deploy Airflow (with Celery) alongside Marquez. The ingestion Directed Acyclic Graph (DAG) creates Parquet snapshots, while dbt and DuckDB build data marts. Inline validations are performed using Great Expectations, and OpenLineage metadata is stored in Marquez, allowing you to track runs and datasets from start to finish.
 
 ## Stack at a glance
 - Ingest: `tfl_ingest_dag` hits the TfL Unified API for your StopPoint IDs and writes Parquet to `data/raw/date=*/`.
@@ -103,4 +103,4 @@ find data/raw -name 'arrivals_*.parquet' | tail
 - dbt build fails: `docker compose exec airflow-scheduler bash -lc "dbt-ol debug --project-dir /opt/airflow/dbt --profiles-dir /opt/airflow/dbt"`.
 
 ## Contributing
-PRs welcome—please include tests (dbt or GX) for new models, sample StopPoints when possible, and a short note of the commands you ran to validate changes.
+Pull requests are welcome—please include tests (dbt or GX) for any new models, sample StopPoints when possible, and a brief note of the commands you ran to validate changes.
