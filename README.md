@@ -103,4 +103,4 @@ find data/raw -name 'arrivals_*.parquet' | tail
 - dbt build fails: `docker compose exec airflow-scheduler bash -lc "dbt-ol debug --project-dir /opt/airflow/dbt --profiles-dir /opt/airflow/dbt"`.
 
 ## Contributing
-Pull requests are welcome—please include tests (dbt or GX) for any new models, sample StopPoints when possible, and a brief note of the commands you ran to validate changes.
+We welcome pull requests—please include tests (dbt or GX) for any new models, sample StopPoints when possible, and a brief note of the commands you ran to validate your changes.
